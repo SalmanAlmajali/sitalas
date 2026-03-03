@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Penerimas\Schemas;
 
 use App\Models\Penerima;
+use App\Models\KodeSurat;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
@@ -38,6 +39,9 @@ class PenerimaForm
                 Select::make('kode_id')
                     ->label('Kode Surat')
                     ->relationship('kodeSurat', 'kode')
+                    ->getOptionLabelFromRecordUsing(fn (KodeSurat $record) =>
+                        $record->kode . ' - ' . $record->index
+                    )
                     ->searchable()
                     ->preload()
                     ->required(),

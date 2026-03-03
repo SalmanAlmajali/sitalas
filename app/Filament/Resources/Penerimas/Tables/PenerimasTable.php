@@ -46,8 +46,8 @@ class PenerimasTable
                 TextColumn::make('unitPengolah.direktorat')
                     ->label('Unit Pengolah')
                     ->sortable(),
-                TextColumn::make('kodeSurat.kode')
-                    ->label('Kode Surat')
+                TextColumn::make('kodeSurat.index')
+                    ->label('Indeks')
                     ->sortable(),
                 
                 
