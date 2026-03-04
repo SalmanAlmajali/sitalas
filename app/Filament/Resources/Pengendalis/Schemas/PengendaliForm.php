@@ -6,6 +6,7 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\FileUpload;
 use Filament\Schemas\Schema;
 
 class PengendaliForm
@@ -14,7 +15,7 @@ class PengendaliForm
     {
         return $schema
             ->components([
-                TextInput::make('penerima_id')
+                /*TextInput::make('penerima_id')
                     ->required()
                     ->numeric(),
                 DatePicker::make('tanggal_terima')
@@ -23,10 +24,10 @@ class PengendaliForm
                     ->required(),
                 TextInput::make('no_urut')
                     ->required()
-                    ->numeric(),
+                    ->numeric(),*/
                 TextInput::make('no_surat')
                     ->required(),
-                TextInput::make('banyak_surat')
+                /*TextInput::make('banyak_surat')
                     ->required()
                     ->numeric(),
                 TextInput::make('direktorat_id')
@@ -36,23 +37,23 @@ class PengendaliForm
                     ->required()
                     ->numeric(),
                 TextInput::make('pengirim')
-                    ->required(),
+                    ->required(),*/
                 TextInput::make('perihal')
                     ->required(),
-                TextInput::make('kontak_person')
+                /*TextInput::make('kontak_person')
                     ->required(),
                 TextInput::make('sifat_surat_id')
                     ->required()
-                    ->numeric(),
+                    ->numeric(),*/
                 Textarea::make('ringkasan_poko')
                     ->required()
                     ->columnSpanFull(),
-                Textarea::make('catatan')
+                /*Textarea::make('catatan')
                     ->required()
-                    ->columnSpanFull(),
-                TextInput::make('file_upload')
+                    ->columnSpanFull(),*/
+                FileUpload::make('file_upload')
                     ->required(),
-                TextInput::make('no_box')
+                /*TextInput::make('no_box')
                     ->required(),
                 TextInput::make('no_rak')
                     ->required(),
@@ -61,7 +62,7 @@ class PengendaliForm
                     ->default('baru'),
                 DateTimePicker::make('dikirim_pada'),
                 TextInput::make('pengarah_id')
-                    ->numeric(),
+                    ->numeric(),*/
             ]);
     }
 }
