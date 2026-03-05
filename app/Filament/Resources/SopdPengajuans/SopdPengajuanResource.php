@@ -50,7 +50,7 @@ class SopdPengajuanResource extends Resource
     {
         return [
             'index' => ListSopdPengajuans::route('/'),
-            'create' => CreateSopdPengajuan::route('/create'),
+            #'create' => CreateSopdPengajuan::route('/create'),
             'view' => ViewSopdPengajuan::route('/{record}'),
             'edit' => EditSopdPengajuan::route('/{record}/edit'),
         ];

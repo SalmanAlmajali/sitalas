@@ -10,10 +10,5 @@ class ListSopdPengajuans extends ListRecords
 {
     protected static string $resource = SopdPengajuanResource::class;
 
-    protected function getHeaderActions(): array
-    {
-        return [
-            CreateAction::make(),
-        ];
-    }
+    
 }
