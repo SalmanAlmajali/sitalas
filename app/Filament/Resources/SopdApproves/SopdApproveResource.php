@@ -11,6 +11,7 @@ use App\Filament\Resources\SopdApproves\Schemas\SopdApproveInfolist;
 use App\Filament\Resources\SopdApproves\Tables\SopdApprovesTable;
 use App\Models\SopdApprove;
 use BackedEnum;
+use UnitEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -20,7 +21,14 @@ class SopdApproveResource extends Resource
 {
     protected static ?string $model = SopdApprove::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string | UnitEnum | null $navigationGroup= 'Surat Keluar';
+
+    protected static ?string $navigationLabel = 'Sopd Approve';
+
+    protected static ?string $modelLabel = 'Sopd Approve';
+    protected static ?string $pluralModelLabel = 'Sopd Approve';
+
+    #protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     protected static ?string $recordTitleAttribute = 'sopd_approve';
 
