@@ -20,37 +20,43 @@ class SopdPengajuansTable
                 TextColumn::make('tanggal_surat')
                     ->date()
                     ->sortable(),
-                TextColumn::make('unitPengolah.direktorat')
-                    ->label('Unit Pegolah')
+
+                TextColumn::make('UnitPengolah.direktorat')
+                    ->label('Unit Pengolah')
                     ->sortable(),
+
                 TextColumn::make('no_surat')
                     ->searchable(),
+
                 TextColumn::make('perihal')
                     ->label('Perihal')
                     ->searchable(),
+
                 TextColumn::make('Klasifikasi.klasifikasi')
                     ->label('Klasifikasi Surat')
                     ->sortable(),
+
                 TextColumn::make('no_urut')
                     ->numeric()
                     ->sortable(),
-                /*TextColumn::make('Kode.kode')
-                    ->label('Kode Surat')
-                    ->sortable(),
-                TextColumn::make('Sifat.sifat_surat')
-                    ->label('Sifat Surat')
-                    ->sortable(),
-                
-                TextColumn::make('kontak_person')
-                    ->searchable(),*/
+
                 TextColumn::make('kepada')
                     ->searchable(),
+
                 TextColumn::make('upload_file')
                     ->searchable(),
+
+                TextColumn::make('status')
+                    ->badge()
+                    ->default('belum request')
+                    ->sortable(),
+                    
+
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+
                 TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
@@ -59,22 +65,22 @@ class SopdPengajuansTable
             ->filters([
                 //
             ])
-            ->recordActions([
-                ViewAction::make(),
-                EditAction::make(),
-            ])
-            ->toolbarActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                ]),
-            ])
             ->actions([
+                ViewAction::make(),
+
+                EditAction::make()
+                    ->visible(fn ($record) => ! $record->is_requested),
+
                 Action::make('request')
                     ->label('Request')
                     ->icon('heroicon-o-paper-airplane')
                     ->color('success')
                     ->requiresConfirmation()
+                    ->visible(fn ($record) => ! $record->is_requested)
                     ->action(function ($record) {
+                        if ($record->is_requested) {
+                            return;
+                        }
 
                         SopdApprove::create([
                             'tambah_surat_keluar_id' => $record->id,
@@ -93,7 +99,17 @@ class SopdPengajuansTable
                             'lampiran' => $record->lampiran,
                         ]);
 
+                        $record->update([
+                            'is_requested' => true,
+                            'status' => 'pending',
+                            'alasan_penolakan' => null,
+                        ]);
                     }),
+            ])
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
+                ]),
             ]);
     }
 }

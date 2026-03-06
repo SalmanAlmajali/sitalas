@@ -26,6 +26,20 @@ return new class extends Migration
             $table->text('keterangan');
             $table->string('upload_file');
             $table->text('lampiran');
+
+            /**
+             * Kolom untuk sistem SOPD Approval
+             */
+
+            $table->string('status')->nullable(); 
+            // pending | diterima | ditolak
+
+            $table->text('alasan_penolakan')->nullable(); 
+            // diisi jika status = ditolak
+
+            $table->boolean('is_requested')->default(false); 
+            // menandakan sudah pernah di request atau belum
+
             $table->timestamps();
         });
     }

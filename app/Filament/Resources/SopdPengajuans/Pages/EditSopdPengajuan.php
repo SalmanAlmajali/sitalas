@@ -11,6 +11,11 @@ class EditSopdPengajuan extends EditRecord
 {
     protected static string $resource = SopdPengajuanResource::class;
 
+    public static function canEdit(\Illuminate\Database\Eloquent\Model $record): bool
+    {
+        return ! $record->is_requested;
+    }
+
     protected function getHeaderActions(): array
     {
         return [

@@ -26,6 +26,9 @@ class TambahSuratKeluar extends Model
         'keterangan',
         'upload_file',
         'lampiran',
+        'status',
+        'alasan_penolakan',
+        'is_requested',
     ];
 
     public function Klasifikasi()
