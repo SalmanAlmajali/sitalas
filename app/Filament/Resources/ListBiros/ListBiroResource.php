@@ -11,6 +11,7 @@ use App\Filament\Resources\ListBiros\Schemas\ListBiroInfolist;
 use App\Filament\Resources\ListBiros\Tables\ListBirosTable;
 use App\Models\ListBiro;
 use BackedEnum;
+use UnitEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -19,8 +20,12 @@ use Filament\Tables\Table;
 class ListBiroResource extends Resource
 {
     protected static ?string $model = ListBiro::class;
+    protected static string | UnitEnum | null $navigationGroup= 'Surat Keluar';
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static ?string $navigationLabel = 'List Biro';
+
+
+    #protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     protected static ?string $recordTitleAttribute = 'list_biro';
 
