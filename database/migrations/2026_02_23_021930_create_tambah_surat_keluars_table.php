@@ -23,22 +23,26 @@ return new class extends Migration
             $table->foreignId('direktorat_id')->constrained('unit_pengolahs')->cascadeOnUpdate()->cascadeOnDelete();
             $table->string('kontak_person');
             $table->string('kepada');
-            $table->text('keterangan');
-            $table->string('upload_file');
-            $table->text('lampiran');
+            $table->text('keterangan')->nullable();
+            $table->string('upload_file')->nullable();
+            $table->text('lampiran')->nullable();
 
             /**
              * Kolom untuk sistem SOPD Approval
              */
-
-            $table->string('status')->nullable(); 
+            $table->string('status')->default('pending');
             // pending | diterima | ditolak
 
-            $table->text('alasan_penolakan')->nullable(); 
+            $table->text('alasan_penolakan')->nullable();
             // diisi jika status = ditolak
 
-            $table->boolean('is_requested')->default(false); 
+            $table->boolean('is_requested')->default(false);
             // menandakan sudah pernah di request atau belum
+
+            /**
+             * Kolom untuk SOPD Report
+             */
+            $table->boolean('dokumen_asli')->default(false);
 
             $table->timestamps();
         });

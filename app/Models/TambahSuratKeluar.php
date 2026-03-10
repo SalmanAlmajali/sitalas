@@ -29,6 +29,12 @@ class TambahSuratKeluar extends Model
         'status',
         'alasan_penolakan',
         'is_requested',
+        'dokumen_asli',
+    ];
+     protected $casts = [
+        'tanggal_surat' => 'date',
+        'is_requested' => 'boolean',
+        'dokumen_asli' => 'boolean',
     ];
 
     public function Klasifikasi()
