@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Filament\Exports\ReportSuratKeluarExport;
 use App\Models\TambahSuratKeluar;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ReportSuratKeluarController extends Controller
 {
@@ -44,5 +46,16 @@ class ReportSuratKeluarController extends Controller
             'sampai_tgl' => $request->sampai_tgl,
             'search' => $request->search,
         ]);
+    }
+     public function export(Request $request)
+    {
+        return Excel::download(
+            new ReportSuratKeluarExport(
+                $request->dari_tgl,
+                $request->sampai_tgl,
+                $request->search
+            ),
+            'report-surat-keluar.xlsx'
+        );
     }
 }

@@ -30,4 +30,6 @@ Route::get('/suratkeluar/{id}/print', [SuratKeluarPrintController::class, 'print
     ->name('suratkeluar.print');
 Route::get('/report-surat-keluar/print', [ReportSuratKeluarController::class, 'print'])
     ->name('report.surat-keluar.print');
+Route::get('/report-surat-keluar/export', [ReportSuratKeluarController::class, 'export'])
+    ->name('report.surat-keluar.export');
 });
