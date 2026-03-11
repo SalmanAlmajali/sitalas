@@ -7,7 +7,6 @@ use BackedEnum;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Pages\Page;
-use Filament\Schemas\Components\Section;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
@@ -85,25 +84,36 @@ class ReportSuratMasuk extends Page implements Tables\Contracts\HasTable
             ->defaultSort('tanggal_terima', 'desc')
             ->striped()
             ->filters([
-                Filter::make('tanggal_terima')
-                    ->label('Filter Tanggal Masuk')
+                Filter::make('tanggal_dari')
+                    ->label('Dari Tanggal')
                     ->schema([
                         DatePicker::make('tanggal_dari')
-                            ->label('Dari Tanggal'),
-
-                        DatePicker::make('tanggal_sampai')
-                            ->label('Sampai Tanggal'),
+                            ->label('Dari Tanggal')
+                            ->native(false)
+                            ->displayFormat('d/m/Y')
+                            ->placeholder('Pilih tanggal'),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
-                        return $query
-                            ->when(
-                                $data['tanggal_dari'] ?? null,
-                                fn (Builder $query, $date): Builder => $query->whereDate('tanggal_terima', '>=', $date)
-                            )
-                            ->when(
-                                $data['tanggal_sampai'] ?? null,
-                                fn (Builder $query, $date): Builder => $query->whereDate('tanggal_terima', '<=', $date)
-                            );
+                        return $query->when(
+                            $data['tanggal_dari'] ?? null,
+                            fn (Builder $query, $date): Builder => $query->whereDate('tanggal_terima', '>=', $date)
+                        );
+                    }),
+
+                Filter::make('tanggal_sampai')
+                    ->label('Sampai Tanggal')
+                    ->schema([
+                        DatePicker::make('tanggal_sampai')
+                            ->label('Sampai Tanggal')
+                            ->native(false)
+                            ->displayFormat('d/m/Y')
+                            ->placeholder('Pilih tanggal'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query->when(
+                            $data['tanggal_sampai'] ?? null,
+                            fn (Builder $query, $date): Builder => $query->whereDate('tanggal_terima', '<=', $date)
+                        );
                     }),
 
                 Filter::make('unit_pengolah')
@@ -113,7 +123,8 @@ class ReportSuratMasuk extends Page implements Tables\Contracts\HasTable
                             ->label('Unit Pengolah')
                             ->relationship('unitPengolah', 'direktorat')
                             ->searchable()
-                            ->preload(),
+                            ->preload()
+                            ->placeholder('Semua Unit'),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query->when(
@@ -129,7 +140,8 @@ class ReportSuratMasuk extends Page implements Tables\Contracts\HasTable
                             ->label('Sifat Surat')
                             ->relationship('sifatSurat', 'sifat_surat')
                             ->searchable()
-                            ->preload(),
+                            ->preload()
+                            ->placeholder('Semua Sifat'),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query->when(
@@ -137,32 +149,7 @@ class ReportSuratMasuk extends Page implements Tables\Contracts\HasTable
                             fn (Builder $query, $state): Builder => $query->where('sifat_surat_id', $state)
                         );
                     }),
-
-                Filter::make('kode_surat')
-                    ->label('Kode Surat')
-                    ->schema([
-                        Select::make('kode_id')
-                            ->label('Kode Surat')
-                            ->relationship('kodeSurat', 'kode')
-                            ->searchable()
-                            ->preload(),
-                    ])
-                    ->query(function (Builder $query, array $data): Builder {
-                        return $query->when(
-                            $data['kode_id'] ?? null,
-                            fn (Builder $query, $state): Builder => $query->where('kode_id', $state)
-                        );
-                    }),
             ])
-            ->filtersFormSchema(fn (array $filters): array => [
-                Section::make('Filter Report Surat Masuk')
-                    ->schema([
-                        $filters['tanggal_terima'],
-                        $filters['unit_pengolah'],
-                        $filters['sifat_surat'],
-                        $filters['kode_surat'],
-                    ])
-                    ->columns(2),
-            ]);
+            ->filtersFormColumns(2);
     }
 }
