@@ -82,7 +82,7 @@ class SopdPengajuansTable
                     ->visible(fn ($record) => ! $record->is_requested),
 
                 Action::make('request')
-                    ->label('Request')
+                    ->label('Minta Persetujuan')
                     ->icon('heroicon-o-paper-airplane')
                     ->color('success')
                     ->requiresConfirmation()
