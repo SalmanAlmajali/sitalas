@@ -80,7 +80,7 @@ class PenerimaForm
                     ->required()
                     ->columnSpanFull(),
                 FileUpload::make('file_upload')
-                    ->nullable(),
+                    ->required(),
                 TextInput::make('no_box')
                     ->required(),
                 TextInput::make('no_rak')
