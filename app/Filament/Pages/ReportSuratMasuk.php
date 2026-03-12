@@ -12,6 +12,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use UnitEnum;
 
 class ReportSuratMasuk extends Page implements Tables\Contracts\HasTable
 {
@@ -21,6 +22,7 @@ class ReportSuratMasuk extends Page implements Tables\Contracts\HasTable
     protected static ?string $navigationLabel = 'Report Surat Masuk';
     protected static ?string $title = 'Report Surat Masuk';
     protected string $view = 'filament.pages.report-surat-masuk';
+    protected static string|UnitEnum|null $navigationGroup = 'Report';
 
     public function table(Table $table): Table
     {
