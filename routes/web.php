@@ -16,8 +16,8 @@ Route::get('/pengarahs/{pengarah}/file', [FileController::class, 'pengarah'])
 Route::get('/pengendalis/{pengendali}/file', [FileController::class, 'pengendali'])
     ->name('pengendalis.file.show');
 
-Route::get('/tambahSuratKeluars/{tambahSuratKeluar}/file', [FileController::class, 'tambahSuratKeluar'])
-    ->name('tambahSuratKeluars.file.show');
+Route::get('/tambahsuratkeluars/{tambahSuratKeluar}/file', [FileController::class, 'tambahSuratKeluar'])
+    ->name('tambahsuratkeluars.file.show');
 
 Route::get('/', function () {
     return view('welcome');

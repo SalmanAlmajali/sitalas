@@ -27,7 +27,7 @@ class FileController extends Controller
 
     public function tambahSuratKeluar(TambahSuratKeluar $tambahSuratKeluar)
     {
-        return $this->serveLocalFile($tambahSuratKeluar->file_upload);
+        return $this->serveLocalFile($tambahSuratKeluar->upload_file);
     }
     public function sopdApprove(SopdApprove $sopdApprove)
     {
