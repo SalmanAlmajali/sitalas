@@ -32,6 +32,10 @@ class Penerima extends Model
         'no_rak',
         'kirim_ke_pengarah_surat',
      ];
+     protected $casts = [
+    'tanggal_terima' => 'date',
+    'tanggal_surat' => 'date',
+   ];
 
      public function unitPengolah()
      {
