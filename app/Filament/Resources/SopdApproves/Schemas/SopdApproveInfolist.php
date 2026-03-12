@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\SopdApproves\Schemas;
 
+use Filament\Schemas\Components\Section;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Schema;
 
@@ -10,37 +11,63 @@ class SopdApproveInfolist
     public static function configure(Schema $schema): Schema
     {
         return $schema
+            ->columns(12)
             ->components([
-                TextEntry::make('tambah_surat_keluar_id')
-                    ->numeric(),
-                TextEntry::make('tanggal_surat')
-                    ->date(),
-                TextEntry::make('klasifikasi_id')
-                    ->numeric(),
-                TextEntry::make('no_urut')
-                    ->numeric(),
-                TextEntry::make('kode_id')
-                    ->numeric(),
-                TextEntry::make('no_surat'),
-                TextEntry::make('sifat_surat_id')
-                    ->numeric(),
-                TextEntry::make('perihal')
-                    ->columnSpanFull(),
-                TextEntry::make('direktorat_id')
-                    ->numeric(),
-                TextEntry::make('kontak_person'),
-                TextEntry::make('kepada'),
-                TextEntry::make('keterangan')
-                    ->columnSpanFull(),
-                TextEntry::make('upload_file'),
-                TextEntry::make('lampiran')
-                    ->columnSpanFull(),
-                TextEntry::make('created_at')
-                    ->dateTime()
-                    ->placeholder('-'),
-                TextEntry::make('updated_at')
-                    ->dateTime()
-                    ->placeholder('-'),
+                Section::make('Detail Surat')
+                    ->description('Informasi utama surat masuk')
+                    ->columns(12)
+                    ->columnSpanFull()
+                    ->components([
+                        TextEntry::make('tanggal_surat')
+                            ->label('Tanggal Surat')
+                            ->date('d F Y')
+                            ->columnSpan(4),
+
+                        TextEntry::make('no_urut')
+                            ->label('No Urut')
+                            ->badge()
+                            ->columnSpan(2),
+
+                        TextEntry::make('no_surat')
+                            ->label('Nomor Surat')
+                            ->copyable()
+                            ->columnSpan(4),
+
+                        TextEntry::make('kepada')
+                            ->label('Kepada')
+                            ->placeholder('-')
+                            ->columnSpan(6),
+
+                        TextEntry::make('kontak_person')
+                            ->label('Kontak Person')
+                            ->placeholder('-')
+                            ->columnSpan(6),
+
+                        TextEntry::make('perihal')
+                            ->label('Perihal')
+                            ->placeholder('-')
+                            ->prose()
+                            ->columnSpanFull(),
+                    ]),
+
+                Section::make('Data Klasifikasi')
+                    ->description('Informasi klasifikasi dan pengolahan surat')
+                    ->columns(12)
+                    ->columnSpanFull()
+                    ->collapsed()
+                    ->components([
+                        TextEntry::make('unitPengolah.direktorat')
+                            ->label('Direktorat')
+                            ->columnSpan(4),
+
+                        TextEntry::make('Kode.kode')
+                            ->label('Kode')
+                            ->columnSpan(4),
+
+                        TextEntry::make('sifat.sifat_surat')
+                            ->label('Sifat Surat')
+                            ->columnSpan(4),
+                    ]),
             ]);
     }
 }
