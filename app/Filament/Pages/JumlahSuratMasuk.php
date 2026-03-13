@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages;
 
+use App\Models\Penerima;
 use App\Models\UnitPengolah;
 use BackedEnum;
 use Filament\Forms\Components\DatePicker;
@@ -10,6 +11,7 @@ use Filament\Tables;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
 use UnitEnum;
 
 class JumlahSuratMasuk extends Page implements Tables\Contracts\HasTable
@@ -27,20 +29,12 @@ class JumlahSuratMasuk extends Page implements Tables\Contracts\HasTable
     public function table(Table $table): Table
     {
         return $table
-            ->query(fn (): Builder => $this->getTableQuery())
+            ->query(
+                UnitPengolah::query()->whereRaw('1 = 0')
+            )
             ->columns([
-                Tables\Columns\TextColumn::make('direktorat')
-                    ->label('Direktorat')
-                    ->searchable()
-                    ->sortable(),
-
-                Tables\Columns\TextColumn::make('jumlah_surat')
-                    ->label('Jumlah Surat')
-                    ->alignCenter()
-                    ->sortable(),
+                Tables\Columns\TextColumn::make('direktorat')->label('Direktorat'),
             ])
-            ->defaultSort('urutan')
-            ->striped()
             ->paginated(false)
             ->filters([
                 Filter::make('tanggal')
@@ -60,35 +54,59 @@ class JumlahSuratMasuk extends Page implements Tables\Contracts\HasTable
                     ])
                     ->columns(2),
             ])
-            ->filtersFormColumns(1)
-            ->emptyStateHeading('Belum ada data')
-            ->emptyStateDescription('Pilih rentang tanggal dari tombol filter lalu klik Apply filters.');
+            ->filtersFormColumns(1);
     }
 
-    protected function getTableQuery(): Builder
+    public function getTanggalDari(): ?string
     {
-        $tanggalDari = data_get($this->tableFilters, 'tanggal.tanggal_dari');
-        $tanggalSampai = data_get($this->tableFilters, 'tanggal.tanggal_sampai');
+        return data_get($this->tableFilters, 'tanggal.tanggal_dari');
+    }
 
-        $query = UnitPengolah::query()
-            ->select('unit_pengolahs.*');
+    public function getTanggalSampai(): ?string
+    {
+        return data_get($this->tableFilters, 'tanggal.tanggal_sampai');
+    }
 
-        if (blank($tanggalDari) || blank($tanggalSampai)) {
-            return $query->whereRaw('1 = 0');
+    public function hasFilterTanggal(): bool
+    {
+        return filled($this->getTanggalDari()) && filled($this->getTanggalSampai());
+    }
+
+    public function getGroupedSuratProperty(): Collection
+    {
+        if (! $this->hasFilterTanggal()) {
+            return collect();
         }
 
-        return $query->withCount([
-            'Penerima as jumlah_surat' => function ($query) use ($tanggalDari, $tanggalSampai) {
-                $query
-                    ->when(
-                        $tanggalDari,
-                        fn ($q) => $q->whereDate('tanggal_terima', '>=', $tanggalDari)
-                    )
-                    ->when(
-                        $tanggalSampai,
-                        fn ($q) => $q->whereDate('tanggal_terima', '<=', $tanggalSampai)
-                    );
-            },
-        ]);
+        $tanggalDari = $this->getTanggalDari();
+        $tanggalSampai = $this->getTanggalSampai();
+
+        $units = UnitPengolah::query()
+            ->orderBy('urutan')
+            ->get();
+
+        $suratByDirektorat = Penerima::query()
+            ->with([
+                'unitPengolah',
+                'kodeSurat',
+                'sifatSurat',
+            ])
+            ->whereDate('tanggal_terima', '>=', $tanggalDari)
+            ->whereDate('tanggal_terima', '<=', $tanggalSampai)
+            ->orderBy('tanggal_surat')
+            ->orderBy('no_urut')
+            ->get()
+            ->groupBy('direktorat_id');
+
+        return $units->map(function ($unit) use ($suratByDirektorat) {
+            $items = $suratByDirektorat->get($unit->id, collect());
+
+            return (object) [
+                'unit_id' => $unit->id,
+                'direktorat' => $unit->direktorat,
+                'jumlah_surat' => $items->count(),
+                'items' => $items,
+            ];
+        });
     }
 }
