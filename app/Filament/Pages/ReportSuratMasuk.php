@@ -121,7 +121,7 @@ class ReportSuratMasuk extends Page implements Tables\Contracts\HasTable
                             ->placeholder('Semua Sifat'),
                     ]),
             ])
-            ->filtersFormColumns(2)
+            ->filtersFormColumns(1)
             ->emptyStateHeading('Belum ada data')
             ->emptyStateDescription('Pilih minimal satu filter dari tanggal, unit pengolah, atau sifat surat lalu klik Apply filters.');
     }

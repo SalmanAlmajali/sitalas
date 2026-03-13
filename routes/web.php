@@ -28,8 +28,10 @@ Route::get('/', function () {
 
 Route::redirect('/', '/admin');
 Route::middleware(['auth'])->group(function () {
-    Route::get('/report/proposal/print', ProposalPrintController::class)
-        ->name('report.proposal.print');
+Route::get('/report-proposal/export', [ProposalPrintController::class, 'export'])
+    ->name('report.proposal.export');
+Route::get('/report-proposal/print', [ProposalPrintController::class, 'print'])
+    ->name('report.proposal.print');
 Route::get('/pengendali/{id}/print', [PengendaliPrintController::class, 'print'])
     ->name('pengendali.print');
 Route::get('/suratkeluar/{id}/print', [SuratKeluarPrintController::class, 'print'])

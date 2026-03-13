@@ -2,26 +2,78 @@
 
 namespace App\Http\Controllers;
 
+use App\Filament\Exports\ReportProposalExport;
 use App\Models\Proposal;
 use App\Models\UnitPengolah;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 
-class ProposalPrintController
+class ProposalPrintController extends Controller
 {
-    public function __invoke(Request $request)
+    public function export(Request $request)
     {
-        $data = Proposal::query()
-            ->with('unitPengolah')
-            ->when($request->date_from, fn ($q) => $q->where('tanggal', '>=', $request->date_from))
-            ->when($request->date_to, fn ($q) => $q->where('tanggal', '<=', $request->date_to))
-            ->when($request->direktorat_id, fn ($q) => $q->where('direktorat_id', $request->direktorat_id))
-            ->orderByDesc('tanggal')
-            ->get();
+        $dateFrom = $request->get('date_from');
+        $dateTo = $request->get('date_to');
+        $direktoratId = $request->get('direktorat_id');
 
-        $selectedDirektorat = $request->direktorat_id
-            ? UnitPengolah::find($request->direktorat_id)
+        $hasFilter =
+            filled($dateFrom) ||
+            filled($dateTo) ||
+            filled($direktoratId);
+
+        if (! $hasFilter) {
+            return back()->with('error', 'Pilih minimal satu filter terlebih dahulu.');
+        }
+
+        return Excel::download(
+            new ReportProposalExport(
+                dateFrom: $dateFrom,
+                dateTo: $dateTo,
+                direktoratId: filled($direktoratId) ? (int) $direktoratId : null,
+            ),
+            'report-proposal.xlsx'
+        );
+    }
+
+    public function print(Request $request)
+    {
+        $dateFrom = $request->get('date_from');
+        $dateTo = $request->get('date_to');
+        $direktoratId = $request->get('direktorat_id');
+
+        $hasFilter =
+            filled($dateFrom) ||
+            filled($dateTo) ||
+            filled($direktoratId);
+
+        $query = Proposal::query()
+            ->with(['unitPengolah:id,direktorat'])
+            ->when(
+                filled($dateFrom),
+                fn (Builder $query) => $query->whereDate('tanggal', '>=', $dateFrom)
+            )
+            ->when(
+                filled($dateTo),
+                fn (Builder $query) => $query->whereDate('tanggal', '<=', $dateTo)
+            )
+            ->when(
+                filled($direktoratId),
+                fn (Builder $query) => $query->where('direktorat_id', $direktoratId)
+            )
+            ->orderByDesc('tanggal');
+
+        $proposals = $hasFilter ? $query->get() : collect();
+
+        $direktorat = filled($direktoratId)
+            ? UnitPengolah::query()->find($direktoratId)?->direktorat
             : null;
 
-        return view('reports.proposal-print', compact('data', 'selectedDirektorat'));
+        return view('print.proposal-print', [
+            'proposals' => $proposals,
+            'dateFrom' => $dateFrom,
+            'dateTo' => $dateTo,
+            'direktorat' => $direktorat,
+        ]);
     }
 }

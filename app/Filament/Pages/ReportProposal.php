@@ -3,90 +3,33 @@
 namespace App\Filament\Pages;
 
 use App\Models\Proposal;
-use App\Models\User;
 use App\Models\UnitPengolah;
-use Filament\Forms;
+use BackedEnum;
+use Filament\Actions\Action;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Select;
 use Filament\Pages\Page;
 use Filament\Tables;
-use Illuminate\Database\Eloquent\Builder;
-use Filament\Schemas\Schema;
-use Filament\Schemas\Components\Grid;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
-use Filament\Actions\Action;
+use Illuminate\Database\Eloquent\Builder;
 use UnitEnum;
-use Filament\Actions\ExportAction;
-use App\Filament\Exports\ReportProposalExporter;
-use Filament\Notifications\Notification;
-use Filament\Actions\Exports\Models\Export;
 
-class ReportProposal extends Page implements
-    Forms\Contracts\HasForms,
-    Tables\Contracts\HasTable
+class ReportProposal extends Page implements Tables\Contracts\HasTable
 {
-    use Forms\Concerns\InteractsWithForms;
     use Tables\Concerns\InteractsWithTable;
 
-     protected static string | UnitEnum | null $navigationGroup = 'Proposal';
-    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-document-text';
+    protected static string | UnitEnum | null $navigationGroup = 'Proposal';
+    protected static string | BackedEnum | null $navigationIcon = 'heroicon-o-document-text';
+    protected static ?string $navigationLabel = 'Report Proposal';
     protected static ?string $title = 'Report Proposal';
 
     protected string $view = 'filament.pages.report-proposal';
 
-    public ?string $date_from = null;
-    public ?string $date_to = null;
-    public ?int $direktorat_id = null;
-
-    public function mount(): void
-    {
-        $this->date_from = now()->startOfMonth()->toDateString();
-        $this->date_to = now()->toDateString();
-    }
-
-        public function form(Schema $schema): Schema
-{
-    return $schema
-        ->statePath('')
-        ->schema([
-            Grid::make(12)->schema([
-                Forms\Components\DatePicker::make('date_from')
-                    ->label('Dari Tanggal')
-                    ->columnSpan(3)
-                    ->live(debounce: 500),
-
-                Forms\Components\DatePicker::make('date_to')
-                    ->label('Sampai Tanggal')
-                    ->columnSpan(3)
-                    ->live(debounce: 500),
-
-                Forms\Components\Select::make('direktorat_id')
-                    ->label('Direktorat')
-                    ->options(fn () => UnitPengolah::query()->pluck('direktorat', 'id')->toArray())
-                    ->searchable()
-                    ->preload()
-                    ->columnSpan(6)
-                    ->live(debounce: 500),
-            ]),
-        ]);
-}
-
-    public function refreshTable(): void
-    {
-        $this->resetTablePagination();
-    }
-
-    protected function getTableQuery(): Builder
-    {
-    return Proposal::query()
-        ->with(['unitPengolah:id,direktorat']) // batasi kolom relasi
-        ->when($this->date_from, fn ($q) => $q->where('tanggal', '>=', $this->date_from))
-        ->when($this->date_to, fn ($q) => $q->where('tanggal', '<=', $this->date_to))
-        ->when($this->direktorat_id, fn ($q) => $q->where('direktorat_id', $this->direktorat_id));
-    }
-
     public function table(Table $table): Table
     {
         return $table
-            ->query($this->getTableQuery())
+            ->query(fn (): Builder => $this->getTableQuery())
             ->columns([
                 Tables\Columns\TextColumn::make('tanggal')
                     ->label('Tgl')
@@ -98,38 +41,108 @@ class ReportProposal extends Page implements
                     ->searchable(),
 
                 Tables\Columns\TextColumn::make('unitPengolah.direktorat')
-                    ->label('Direktorat'),
+                    ->label('Direktorat')
+                    ->searchable()
+                    ->wrap(),
 
                 Tables\Columns\TextColumn::make('pengirim')
-                    ->searchable(),
+                    ->label('Pengirim')
+                    ->searchable()
+                    ->wrap(),
 
                 Tables\Columns\TextColumn::make('perihal')
-                    ->wrap()
-                    ->searchable(),
+                    ->label('Perihal')
+                    ->searchable()
+                    ->wrap(),
             ])
             ->defaultSort('tanggal', 'desc')
+            ->filters([
+                Filter::make('tanggal')
+                    ->label('Filter Tanggal')
+                    ->schema([
+                        DatePicker::make('date_from')
+                            ->label('Dari Tanggal')
+                            ->native(false)
+                            ->displayFormat('d/m/Y')
+                            ->placeholder('Pilih tanggal'),
+
+                        DatePicker::make('date_to')
+                            ->label('Sampai Tanggal')
+                            ->native(false)
+                            ->displayFormat('d/m/Y')
+                            ->placeholder('Pilih tanggal'),
+                    ])
+                    ->columns(2),
+
+                Filter::make('direktorat')
+                    ->label('Direktorat')
+                    ->schema([
+                        Select::make('direktorat_id')
+                            ->label('Direktorat')
+                            ->options(fn () => UnitPengolah::query()->pluck('direktorat', 'id')->toArray())
+                            ->searchable()
+                            ->preload()
+                            ->placeholder('Semua Direktorat'),
+                    ]),
+            ])
+            ->filtersFormColumns(1)
             ->headerActions([
-               ExportAction::make('export')
-                    ->label('Excel')
+                Action::make('export_excel')
+                    ->label('Export Excel')
                     ->icon('heroicon-o-arrow-down-tray')
-                    ->exporter(\App\Filament\Exports\ReportProposalExporter::class)
-                    ->after(function () {
-                        Notification::make()
-                            ->title('Export completed')
-                            ->body('File Excel sudah siap di-download.')
-                            ->success()
-                            ->sendToDatabase(auth()->user());
-                    }),
+                    ->color('success')
+                    ->url(fn () => route('report.proposal.export', [
+                        'date_from' => data_get($this->tableFilters, 'tanggal.date_from'),
+                        'date_to' => data_get($this->tableFilters, 'tanggal.date_to'),
+                        'direktorat_id' => data_get($this->tableFilters, 'direktorat.direktorat_id'),
+                    ]))
+                    ->openUrlInNewTab(),
 
                 Action::make('print')
                     ->label('Print')
                     ->icon('heroicon-o-printer')
+                    ->color('gray')
                     ->url(fn () => route('report.proposal.print', [
-                        'date_from' => $this->date_from,
-                        'date_to' => $this->date_to,
-                        'direktorat_id' => $this->direktorat_id,
+                        'date_from' => data_get($this->tableFilters, 'tanggal.date_from'),
+                        'date_to' => data_get($this->tableFilters, 'tanggal.date_to'),
+                        'direktorat_id' => data_get($this->tableFilters, 'direktorat.direktorat_id'),
                     ]))
                     ->openUrlInNewTab(),
-            ]);
+            ])
+            ->emptyStateHeading('Belum ada data')
+            ->emptyStateDescription('Pilih minimal satu filter dari tanggal atau direktorat lalu klik Apply filters.');
+    }
+
+    protected function getTableQuery(): Builder
+    {
+        $dateFrom = data_get($this->tableFilters, 'tanggal.date_from');
+        $dateTo = data_get($this->tableFilters, 'tanggal.date_to');
+        $direktoratId = data_get($this->tableFilters, 'direktorat.direktorat_id');
+
+        $query = Proposal::query()
+            ->with(['unitPengolah:id,direktorat']);
+
+        $hasFilter =
+            filled($dateFrom) ||
+            filled($dateTo) ||
+            filled($direktoratId);
+
+        if (! $hasFilter) {
+            return $query->whereRaw('1 = 0');
+        }
+
+        return $query
+            ->when(
+                filled($dateFrom),
+                fn (Builder $query) => $query->whereDate('tanggal', '>=', $dateFrom)
+            )
+            ->when(
+                filled($dateTo),
+                fn (Builder $query) => $query->whereDate('tanggal', '<=', $dateTo)
+            )
+            ->when(
+                filled($direktoratId),
+                fn (Builder $query) => $query->where('direktorat_id', $direktoratId)
+            );
     }
 }
