@@ -6,22 +6,18 @@ use App\Models\TambahSuratKeluar;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Concerns\InteractsWithForms;
-use Filament\Forms\Contracts\HasForms;
 use Filament\Pages\Page;
-use Filament\Schemas\Components\Grid;
-use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use UnitEnum;
 
-class ReportSuratKeluar extends Page implements HasTable, HasForms
+class ReportSuratKeluar extends Page implements HasTable
 {
     use InteractsWithTable;
-    use InteractsWithForms;
 
     protected static string | BackedEnum | null $navigationIcon = 'heroicon-o-document-text';
     protected static ?string $navigationLabel = 'Report Surat Keluar';
@@ -29,44 +25,10 @@ class ReportSuratKeluar extends Page implements HasTable, HasForms
     protected static string | UnitEnum | null $navigationGroup = 'Report';
     protected string $view = 'filament.pages.report-surat-keluar';
 
-    public ?array $data = [];
-
-    public function mount(): void
-    {
-        $this->form->fill([
-            'dari_tgl' => null,
-            'sampai_tgl' => null,
-        ]);
-    }
-
-    public function form(Schema $schema): Schema
-    {
-        return $schema
-            ->components([
-                Grid::make(2)
-                    ->schema([
-                        DatePicker::make('dari_tgl')
-                            ->label('Dari Tanggal')
-                            ->native(false)
-                            ->live()
-                            ->displayFormat('d M Y')
-                            ->closeOnDateSelection(),
-
-                        DatePicker::make('sampai_tgl')
-                            ->label('Sampai Tanggal')
-                            ->native(false)
-                            ->live()
-                            ->displayFormat('d M Y')
-                            ->closeOnDateSelection(),
-                    ]),
-            ])
-            ->statePath('data');
-    }
-
     public function table(Table $table): Table
     {
         return $table
-            ->query($this->getTableQuery())
+            ->query(fn (): Builder => $this->getTableQuery())
             ->columns([
                 TextColumn::make('tanggal_surat')
                     ->label('Tgl Surat')
@@ -110,25 +72,33 @@ class ReportSuratKeluar extends Page implements HasTable, HasForms
             ->defaultSort('tanggal_surat', 'desc')
             ->paginated([10, 25, 50, 100])
             ->searchable(false)
-            ->headerActions([
-                Action::make('reset_filter')
-                    ->label('Reset Filter')
-                    ->icon('heroicon-o-arrow-path')
-                    ->color('gray')
-                    ->action(function () {
-                        $this->form->fill([
-                            'dari_tgl' => null,
-                            'sampai_tgl' => null,
-                        ]);
-                    }),
+            ->filters([
+                Filter::make('tanggal')
+                    ->label('Filter Tanggal')
+                    ->schema([
+                        DatePicker::make('dari_tgl')
+                            ->label('Dari Tanggal')
+                            ->native(false)
+                            ->displayFormat('d/m/Y')
+                            ->placeholder('Pilih tanggal'),
 
+                        DatePicker::make('sampai_tgl')
+                            ->label('Sampai Tanggal')
+                            ->native(false)
+                            ->displayFormat('d/m/Y')
+                            ->placeholder('Pilih tanggal'),
+                    ])
+                    ->columns(2),
+            ])
+            ->filtersFormColumns(1)
+            ->headerActions([
                 Action::make('print_all')
                     ->label('Print Semua Data')
                     ->icon('heroicon-o-printer')
                     ->color('success')
                     ->url(fn () => route('report.surat-keluar.print', [
-                        'dari_tgl' => $this->data['dari_tgl'] ?? null,
-                        'sampai_tgl' => $this->data['sampai_tgl'] ?? null,
+                        'dari_tgl' => data_get($this->tableFilters, 'tanggal.dari_tgl'),
+                        'sampai_tgl' => data_get($this->tableFilters, 'tanggal.sampai_tgl'),
                     ]))
                     ->openUrlInNewTab(),
 
@@ -137,24 +107,29 @@ class ReportSuratKeluar extends Page implements HasTable, HasForms
                     ->icon('heroicon-o-arrow-down-tray')
                     ->color('info')
                     ->url(fn () => route('report.surat-keluar.export', [
-                        'dari_tgl' => $this->data['dari_tgl'] ?? null,
-                        'sampai_tgl' => $this->data['sampai_tgl'] ?? null,
+                        'dari_tgl' => data_get($this->tableFilters, 'tanggal.dari_tgl'),
+                        'sampai_tgl' => data_get($this->tableFilters, 'tanggal.sampai_tgl'),
                     ]))
                     ->openUrlInNewTab(),
-            ]);
+            ])
+            ->emptyStateHeading('Belum ada data surat keluar')
+            ->emptyStateDescription('Pilih rentang tanggal dari tombol filter lalu klik Apply filters.');
     }
 
     protected function getTableQuery(): Builder
     {
-        return TambahSuratKeluar::query()
-            ->with(['UnitPengolah', 'Klasifikasi', 'Kode'])
-            ->when(
-                filled($this->data['dari_tgl'] ?? null),
-                fn (Builder $query) => $query->whereDate('tanggal_surat', '>=', $this->data['dari_tgl'])
-            )
-            ->when(
-                filled($this->data['sampai_tgl'] ?? null),
-                fn (Builder $query) => $query->whereDate('tanggal_surat', '<=', $this->data['sampai_tgl'])
-            );
+        $tanggalDari = data_get($this->tableFilters, 'tanggal.dari_tgl');
+        $tanggalSampai = data_get($this->tableFilters, 'tanggal.sampai_tgl');
+
+        $query = TambahSuratKeluar::query()
+            ->with(['UnitPengolah', 'Klasifikasi', 'Kode']);
+
+        if (blank($tanggalDari) || blank($tanggalSampai)) {
+            return $query->whereRaw('1 = 0');
+        }
+
+        return $query
+            ->whereDate('tanggal_surat', '>=', $tanggalDari)
+            ->whereDate('tanggal_surat', '<=', $tanggalSampai);
     }
 }
