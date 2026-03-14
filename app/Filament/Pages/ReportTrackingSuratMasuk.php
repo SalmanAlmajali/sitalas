@@ -23,6 +23,7 @@ class ReportTrackingSuratMasuk extends Page implements HasTable
     protected static ?string $title = 'Tracking Surat Masuk';
     protected static ?int $navigationSort = 10;
     protected string $view = 'filament.pages.report-tracking-surat-masuk';
+    protected static string | UnitEnum | null $navigationGroup = 'Report';
 
     public function table(Table $table): Table
     {
@@ -77,7 +78,7 @@ class ReportTrackingSuratMasuk extends Page implements HasTable
                     ->label('No Surat')
                     ->searchable(),
 
-                Tables\Columns\TextColumn::make('input_by')
+                Tables\Columns\TextColumn::make('created_by')
                     ->label('Input By')
                     ->default('-')
                     ->toggleable(isToggledHiddenByDefault: false),
