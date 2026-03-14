@@ -63,9 +63,9 @@ class ReportTrackingSuratMasuk extends Page implements HasTable
                     ->badge(),
 
                 Tables\Columns\TextColumn::make('file_upload')
-                    ->label('File Upload')
-                    ->formatStateUsing(fn ($state) => filled($state) ? 'Lihat File' : '-')
-                    ->url(fn ($record) => filled($record->file_upload) ? asset('storage/' . $record->file_upload) : null, true)
+                    ->label('File upload')
+                    ->formatStateUsing(fn ($state) => basename($state))
+                    ->url(fn ($record) => route('penerimas.file.show', ['penerima' => $record->getKey()]))
                     ->openUrlInNewTab(),
 
                 Tables\Columns\TextColumn::make('perihal')
