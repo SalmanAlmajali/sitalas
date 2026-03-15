@@ -14,7 +14,7 @@ class ReportTracking extends Page implements Tables\Contracts\HasTable
 {
     use Tables\Concerns\InteractsWithTable;
 
-    protected static string |BackedEnum| null $navigationIcon = 'heroicon-o-document-text';
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-document-text';
     protected string $view = 'filament.pages.report-tracking';
     protected static ?string $navigationLabel = 'Report Tracking';
     protected static ?string $title = 'Report Tracking Surat Masuk';
@@ -22,7 +22,22 @@ class ReportTracking extends Page implements Tables\Contracts\HasTable
     public function table(Table $table): Table
     {
         return $table
-            ->query(SuratMasuk::query())
+
+            ->query(function () {
+
+                $tanggalDari = $this->tableFilters['tanggal']['tanggal_dari'] ?? null;
+                $tanggalSampai = $this->tableFilters['tanggal']['tanggal_sampai'] ?? null;
+                $direktorat = $this->tableFilters['direktorat_id']['value'] ?? null;
+
+                $query = SuratMasuk::query();
+
+                // Jika semua filter kosong, jangan tampilkan data
+                if (!$tanggalDari && !$tanggalSampai && !$direktorat) {
+                    $query->whereRaw('1 = 0');
+                }
+
+                return $query;
+            })
 
             ->columns([
 
@@ -43,11 +58,13 @@ class ReportTracking extends Page implements Tables\Contracts\HasTable
 
                 Tables\Columns\TextColumn::make('unitPengolah.direktorat')
                     ->label('Direktorat'),
-                    
+
                 Tables\Columns\TextColumn::make('upload_file')
-                    ->label('File upload')
+                    ->label('File Upload')
                     ->formatStateUsing(fn ($state) => basename($state))
-                    ->url(fn ($record) => route('reporttrackings.file.show', ['reportTracking' => $record->getKey()]))
+                    ->url(fn ($record) => route('reporttrackings.file.show', [
+                        'reportTracking' => $record->getKey()
+                    ]))
                     ->openUrlInNewTab(),
 
                 Tables\Columns\TextColumn::make('kodeSurat.kode')
@@ -99,6 +116,9 @@ class ReportTracking extends Page implements Tables\Contracts\HasTable
 
             ])
 
-            ->defaultSort('tanggal_terima', 'desc');
+            ->defaultSort('tanggal_terima', 'desc')
+
+            ->emptyStateHeading('Silakan gunakan filter terlebih dahulu')
+            ->emptyStateDescription('Data report tracking akan muncul setelah memilih filter tanggal atau direktorat.');
     }
 }
