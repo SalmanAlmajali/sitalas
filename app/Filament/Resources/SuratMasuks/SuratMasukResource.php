@@ -13,12 +13,16 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class SuratMasukResource extends Resource
 {
     protected static ?string $model = SuratMasuk::class;
+    protected static string | UnitEnum | null $navigationGroup = 'Daftar Surat';
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static ?string $navigationLabel = 'Surat Masuk';
+
+    #protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     protected static ?string $recordTitleAttribute = 'surat_masuk';
 
