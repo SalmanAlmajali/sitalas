@@ -14,9 +14,8 @@ class SuratMasuksTable
     {
         return $table
             ->columns([
-                TextColumn::make('no_surat')
-                    ->searchable(),
                 TextColumn::make('tanggal_terima')
+                    ->label('Tanggal Masuk')
                     ->date()
                     ->sortable(),
                 TextColumn::make('tanggal_surat')
@@ -25,26 +24,20 @@ class SuratMasuksTable
                 TextColumn::make('no_urut')
                     ->numeric()
                     ->sortable(),
-                TextColumn::make('banyak_surat')
-                    ->numeric()
-                    ->sortable(),
-                TextColumn::make('direktorat_id')
-                    ->numeric()
-                    ->sortable(),
-                TextColumn::make('kode_id')
-                    ->numeric()
-                    ->sortable(),
+                TextColumn::make('no_surat')
+                    ->numeric(),
+                TextColumn::make('upload_file')
+                    ->searchable(),
                 TextColumn::make('pengirim')
                     ->searchable(),
                 TextColumn::make('perihal')
                     ->searchable(),
-                TextColumn::make('kontak_person')
-                    ->searchable(),
-                TextColumn::make('sifat_surat_id')
-                    ->numeric()
+                TextColumn::make('unitPengolah.direktorat')
+                    ->label('Direktorat')
                     ->sortable(),
-                TextColumn::make('upload_file')
-                    ->searchable(),
+                TextColumn::make('kodeSurat.kode')
+                    ->label('Kode Surat')
+                    ->sortable(),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
