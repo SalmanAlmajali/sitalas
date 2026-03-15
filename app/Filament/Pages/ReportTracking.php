@@ -44,8 +44,14 @@ class ReportTracking extends Page implements Tables\Contracts\HasTable
                 Tables\Columns\TextColumn::make('unitPengolah.direktorat')
                     ->label('Direktorat'),
                     
+                Tables\Columns\TextColumn::make('upload_file')
+                    ->label('File upload')
+                    ->formatStateUsing(fn ($state) => basename($state))
+                    ->url(fn ($record) => route('reporttrackings.file.show', ['reportTracking' => $record->getKey()]))
+                    ->openUrlInNewTab(),
+
                 Tables\Columns\TextColumn::make('kodeSurat.kode')
-                    ->label('Kode')
+                    ->label('Kode Surat')
                     ->searchable(),
 
                 Tables\Columns\TextColumn::make('kodeSurat.index')

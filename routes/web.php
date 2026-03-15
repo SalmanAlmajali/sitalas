@@ -22,6 +22,9 @@ Route::get('/tambahsuratkeluars/{tambahSuratKeluar}/file', [FileController::clas
 Route::get('/sopdapproves/{sopdApprove}/file', [FileController::class, 'sopdApprove'])
     ->name('sopdapproves.file.show');
 
+Route::get('/reporttrackings/{reportTracking}/file', [FileController::class, 'reportTracking'])
+    ->name('reporttrackings.file.show');
+    
 Route::get('/', function () {
     return view('welcome');
 });

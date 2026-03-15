@@ -7,6 +7,7 @@ use App\Models\Pengarah;
 use App\Models\Pengendali;
 use App\Models\TambahSuratKeluar;
 use App\Models\SopdApprove;
+use App\Models\SuratMasuk;
 use Illuminate\Support\Facades\Storage;
 
 class FileController extends Controller
@@ -32,6 +33,10 @@ class FileController extends Controller
     public function sopdApprove(SopdApprove $sopdApprove)
     {
         return $this->serveLocalFile($sopdApprove->upload_file);
+    }
+    public function reportTracking(SuratMasuk $reportTracking)
+    {
+        return $this->serveLocalFile($reportTracking->upload_file);
     }
 
     private function serveLocalFile(string $path)
