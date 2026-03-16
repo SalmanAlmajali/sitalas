@@ -33,15 +33,11 @@ class SopdPengajuansTable
                     ->label('Perihal')
                     ->searchable(),
 
-                TextColumn::make('Klasifikasi.klasifikasi')
-                    ->label('Klasifikasi Surat')
-                    ->sortable(),
-
-                TextColumn::make('no_urut')
-                    ->numeric()
-                    ->sortable(),
-
                 TextColumn::make('kepada')
+                    ->searchable(),
+
+                TextColumn::make('kontak_person')
+                    ->label('No Hp')
                     ->searchable(),
 
                 TextColumn::make('upload_file')
