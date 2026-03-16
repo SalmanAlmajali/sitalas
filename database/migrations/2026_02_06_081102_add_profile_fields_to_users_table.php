@@ -15,6 +15,7 @@ return new class extends Migration
             $table->unsignedBigInteger('direktorat_id')->nullable()->index();
             $table->string('file_ttd')->nullable();
             $table->string('no_hp', 20)->nullable();
+            $table->string('type')->default("user");
             $table->string('tkls')->nullable();
             $table->boolean('sopd')->default(false);
             $table->timestamp('last_login')->nullable();
@@ -32,6 +33,7 @@ return new class extends Migration
                 'direktorat_id',
                 'file_ttd',
                 'no_hp',
+                'type',
                 'tkls',
                 'sopd',
                 'last_login',

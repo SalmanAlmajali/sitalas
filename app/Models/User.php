@@ -19,6 +19,7 @@ class User extends Authenticatable
         'direktorat_id',
         'file_ttd',
         'no_hp',
+        'type',
         'tkls',
         'sopd',
         'last_login',
@@ -54,5 +55,20 @@ class User extends Authenticatable
     public function scopeAktif(Builder $query): Builder
     {
         return $query->where('active', true);
+    }
+
+    public function isAdmin()
+    {
+        return $this->type === "admin";
+    }
+
+    public function isStaf()
+    {
+        return $this->type === "staf";
+    }
+
+    public function isUser()
+    {
+        return $this->type === "user";
     }
 }
