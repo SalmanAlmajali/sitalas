@@ -51,6 +51,11 @@ class SopdPengajuansTable
                     )
                     ->openUrlInNewTab(),
 
+                TextColumn::make('user.name')
+                    ->label('Diinput Oleh')
+                    ->badge()
+                    ->color('info'),
+
                 TextColumn::make('status')
                     ->badge()
                     ->formatStateUsing(fn ($state) => $state ?: 'belum request')
@@ -60,7 +65,7 @@ class SopdPengajuansTable
                         'danger' => 'ditolak',
                         'secondary' => 'belum request',
                     ]),
-
+                
                 TextColumn::make('alasan_penolakan')
                     ->label('Alasan Penolakan')
                     ->wrap()

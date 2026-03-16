@@ -16,6 +16,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class SopdPengajuanResource extends Resource
 {
@@ -31,6 +32,13 @@ class SopdPengajuanResource extends Resource
     #protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     protected static ?string $recordTitleAttribute = 'sopd_pengajuan';
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->where('is_sopd_req', true)
+            ->where('user_id', auth()->id());
+    }
 
     public static function form(Schema $schema): Schema
     {

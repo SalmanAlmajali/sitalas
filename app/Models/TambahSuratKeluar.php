@@ -8,6 +8,7 @@ use App\Models\Klasifikasi;
 use App\Models\KodeSurat;
 use App\Models\SifatSurat;
 use App\Models\UnitPengolah;
+use App\Models\User;
 class TambahSuratKeluar extends Model
 {
     use HasFactory;
@@ -30,11 +31,15 @@ class TambahSuratKeluar extends Model
         'alasan_penolakan',
         'is_requested',
         'dokumen_asli',
+
+        'user_id',
+        'is_sopd_req',
     ];
      protected $casts = [
         'tanggal_surat' => 'date',
         'is_requested' => 'boolean',
         'dokumen_asli' => 'boolean',
+        'is_sopd_req' => 'boolean',
     ];
 
     public function Klasifikasi()
@@ -52,5 +57,10 @@ class TambahSuratKeluar extends Model
     public function UnitPengolah()
     {
         return $this->belongsTo(UnitPengolah::class, 'direktorat_id');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }
