@@ -54,6 +54,14 @@ class ListBirosTable
                     )
                     ->openUrlInNewTab(),
 
+                TextColumn::make('tanggal_terima')
+                    ->label('Tanggal Terima')
+                    ->date()
+                    ->sortable(),
+
+                TextColumn::make('file_bukti_terima')
+                    ->label('File Bukti Terima'),
+                    
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

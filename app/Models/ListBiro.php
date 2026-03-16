@@ -21,6 +21,8 @@ class ListBiro extends Model
         'keterangan',
         'upload_file',
         'lampiran',
+        'tanggal_terima',
+        'file_bukti_terima',
     ];
 
     public function tambahSuratKeluar()
