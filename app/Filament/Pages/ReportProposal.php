@@ -26,6 +26,15 @@ class ReportProposal extends Page implements Tables\Contracts\HasTable
 
     protected string $view = 'filament.pages.report-proposal';
 
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->isAdmin();
+    }
+    public static function shouldRegisterNavigation(): bool
+    {
+        return auth()->user()?->isAdmin();
+    }
+
     public function table(Table $table): Table
     {
         return $table
