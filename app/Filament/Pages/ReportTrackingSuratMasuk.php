@@ -25,6 +25,15 @@ class ReportTrackingSuratMasuk extends Page implements HasTable
     protected string $view = 'filament.pages.report-tracking-surat-masuk';
     protected static string | UnitEnum | null $navigationGroup = 'Report';
 
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->isAdmin();
+    }
+    public static function shouldRegisterNavigation(): bool
+    {
+        return auth()->user()?->isAdmin();
+    }
+
     public function table(Table $table): Table
     {
         return $table
