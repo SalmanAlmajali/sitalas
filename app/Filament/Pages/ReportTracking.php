@@ -21,6 +21,15 @@ class ReportTracking extends Page implements Tables\Contracts\HasTable
     protected static ?string $title = 'Report Tracking Surat Masuk';
     protected static string | UnitEnum | null $navigationGroup = 'Report';
 
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->isStaf();
+    }
+    public static function shouldRegisterNavigation(): bool
+    {
+        return auth()->user()?->isStaf();
+    }
+
 
     public function table(Table $table): Table
     {
