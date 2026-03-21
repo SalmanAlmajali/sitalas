@@ -13,7 +13,7 @@ class ListBiroPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->isAdmin() || $user->isUser();
+        return $user->isAdmin() || $user->isUser() || $user->isStaf();
     }
 
     /**
@@ -21,7 +21,7 @@ class ListBiroPolicy
      */
     public function view(User $user, ListBiro $listBiro): bool
     {
-        return $user->isAdmin() || $user->isUser();
+        return $user->isAdmin() || $user->isUser() || $user->isStaf();
     }
 
     /**
@@ -29,7 +29,7 @@ class ListBiroPolicy
      */
     public function create(User $user): bool
     {
-        return $user->isAdmin() || $user->isUser();
+        return $user->isAdmin() || $user->isUser() || $user->isStaf();
     }
 
     /**
@@ -37,7 +37,7 @@ class ListBiroPolicy
      */
     public function update(User $user, ListBiro $listBiro): bool
     {
-        return $user->isAdmin() || $user->isUser();
+        return $user->isAdmin() || $user->isUser() || $user->isStaf();
     }
 
     /**
@@ -45,7 +45,7 @@ class ListBiroPolicy
      */
     public function delete(User $user, ListBiro $listBiro): bool
     {
-        return $user->isAdmin() || $user->isUser();
+        return $user->isAdmin() || $user->isUser() || $user->isStaf();
     }
 
     /**
@@ -53,7 +53,7 @@ class ListBiroPolicy
      */
     public function restore(User $user, ListBiro $listBiro): bool
     {
-        return $user->isAdmin() || $user->isUser();
+        return $user->isAdmin() || $user->isUser() || $user->isStaf();
     }
 
     /**
@@ -61,6 +61,6 @@ class ListBiroPolicy
      */
     public function forceDelete(User $user, ListBiro $listBiro): bool
     {
-        return $user->isAdmin() || $user->isUser();
+        return $user->isAdmin() || $user->isUser() || $user->isStaf();
     }
 }
