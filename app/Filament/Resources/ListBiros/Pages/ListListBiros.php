@@ -10,10 +10,5 @@ class ListListBiros extends ListRecords
 {
     protected static string $resource = ListBiroResource::class;
 
-    protected function getHeaderActions(): array
-    {
-        return [
-            CreateAction::make(),
-        ];
-    }
+    
 }

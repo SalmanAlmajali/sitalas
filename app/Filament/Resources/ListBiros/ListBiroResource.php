@@ -55,7 +55,7 @@ class ListBiroResource extends Resource
     {
         return [
             'index' => ListListBiros::route('/'),
-            'create' => CreateListBiro::route('/create'),
+            #'create' => CreateListBiro::route('/create'),
             'view' => ViewListBiro::route('/{record}'),
             'edit' => EditListBiro::route('/{record}/edit'),
         ];
