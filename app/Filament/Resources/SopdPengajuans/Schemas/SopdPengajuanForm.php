@@ -7,6 +7,8 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\FileUpload;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Schema;
 
 class SopdPengajuanForm
@@ -16,32 +18,70 @@ class SopdPengajuanForm
         return $schema
             ->components([
 
-                DatePicker::make('tanggal_surat')
-                    ->required(),
+                Grid::make([
+                    'default' => 1,
+                    'xl' => 2,
+                ])
+                ->columnSpanFull()
+                ->schema([
 
-                Textarea::make('perihal')
-                    ->required(),
+                    Grid::make(1)->schema([
 
-                Select::make('sifat_surat_id')
-                    ->label('Sifat Surat')
-                    ->relationship('Sifat', 'sifat_surat')
-                    ->searchable()
-                    ->preload(),
+                        Section::make('Informasi Pengajuan')
+                            ->description('Data utama pengajuan surat')
+                            ->schema([
+                                Grid::make(2)->schema([
 
-                TextInput::make('kepada')
-                    ->label('Kepada')
-                    ->required(),
+                                    DatePicker::make('tanggal_surat')
+                                        ->label('Tanggal Surat')
+                                        ->required(),
 
-                TextInput::make('kontak_person')
-                    ->label('No HP')
-                    ->required(),
+                                    Select::make('sifat_surat_id')
+                                        ->label('Sifat Surat')
+                                        ->relationship('Sifat', 'sifat_surat')
+                                        ->searchable()
+                                        ->preload(),
 
-                Textarea::make('keterangan')
-                    ->label('Note'),
+                                    TextInput::make('kepada')
+                                        ->label('Kepada')
+                                        ->required()
+                                        ->columnSpanFull(),
 
-                FileUpload::make('upload_file')
-                    ->label('Upload File'),
+                                ]),
+                            ])
+                            ->extraAttributes(['class' => 'h-full']),
+                    ]),
 
+                    Grid::make(1)->schema([
+
+                        Section::make('Detail & Kontak')
+                            ->schema([
+                                Grid::make(2)->schema([
+
+                                    TextInput::make('kontak_person')
+                                        ->label('No HP')
+                                        ->tel()
+                                        ->required(),
+
+                                    FileUpload::make('upload_file')
+                                        ->label('Upload File'),
+
+                                ]),
+
+                                Textarea::make('perihal')
+                                    ->label('Perihal')
+                                    ->rows(2)
+                                    ->required()
+                                    ->columnSpanFull(),
+
+                                Textarea::make('keterangan')
+                                    ->label('Catatan')
+                                    ->rows(3)
+                                    ->columnSpanFull(),
+                            ])
+                            ->extraAttributes(['class' => 'h-full']),
+                    ]),
+                ]),
             ]);
     }
 }
