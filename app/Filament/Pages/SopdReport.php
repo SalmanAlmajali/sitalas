@@ -23,7 +23,7 @@ class SopdReport extends Page implements HasTable
     use InteractsWithTable;
 
     #protected static string | BackedEnum | null $navigationIcon = 'heroicon-o-document-chart-bar';
-    protected static ?string $navigationLabel = 'SOPD Report';
+    protected static ?string $navigationLabel = 'Sopd Report';
     protected static ?string $title = 'SOPD Report Surat Keluar';
     protected static string | UnitEnum | null $navigationGroup = 'Surat Keluar';
     protected string $view = 'filament.pages.sopd-report';
