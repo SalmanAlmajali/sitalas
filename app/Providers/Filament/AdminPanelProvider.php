@@ -45,6 +45,7 @@ class AdminPanelProvider extends PanelProvider
                 FilamentInfoWidget::class,
                 \App\Filament\Widgets\StatsOverview::class,
                 \App\Filament\Widgets\ChartSuratMasuk::class,
+                \App\Filament\Widgets\ChartSuratKeluar::class,
             ])
             ->middleware([
                 EncryptCookies::class,
