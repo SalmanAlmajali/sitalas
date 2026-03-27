@@ -23,6 +23,16 @@ class StatsOverview extends BaseWidget
 
             Stat::make('Surat Keluar', TambahSuratKeluar::count())
                 ->description('Total surat keluar')
+                ->descriptionIcon(Heroicon::ArrowDownLeft, IconPosition::Before)
+                ->chart(
+                    TambahSuratKeluar::selectRaw("MONTH(created_at) as month, COUNT(*) as count")
+                    ->whereYear("created_at", now()->year)
+                    ->groupBy("month")
+                    ->orderBy("month")
+                    ->pluck("count")
+                    ->toArray()
+                )
+                ->descriptionColor('success')
                 ->color('success'),
 
             Stat::make('Proposal', Proposal::count())
