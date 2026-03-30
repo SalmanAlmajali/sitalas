@@ -14,13 +14,22 @@ return new class extends Migration
         Schema::create('tambah_surat_keluars', function (Blueprint $table) {
             $table->id();
             $table->date('tanggal_surat');
-            $table->foreignId('klasifikasi_id')->nullable()->constrained('klasifikasis')->cascadeOnUpdate()->cascadeOnDelete();
-            $table->integer('no_urut')->nullable();
-            $table->foreignId('kode_id')->nullable()->constrained('kode_surats')->cascadeOnUpdate()->cascadeOnDelete();
-            $table->string('no_surat')->nullable();
+            $table->foreignId('klasifikasi_id')
+                ->constrained('klasifikasis')
+                ->cascadeOnUpdate()
+                ->cascadeOnDelete();
+            $table->integer('no_urut');
+            $table->foreignId('kode_id')
+                ->constrained('kode_surats')
+                ->cascadeOnUpdate()
+                ->cascadeOnDelete();
+            $table->string('no_surat');
             $table->foreignId('sifat_surat_id')->constrained('sifat_surats')->cascadeOnUpdate()->cascadeOnDelete();
             $table->text('perihal');
-            $table->foreignId('direktorat_id')->nullable()->constrained('unit_pengolahs')->cascadeOnUpdate()->cascadeOnDelete();
+            $table->foreignId('direktorat_id')
+                ->constrained('unit_pengolahs')
+                ->cascadeOnUpdate()
+                ->cascadeOnDelete();
             $table->string('kontak_person');
             $table->string('kepada');
             $table->text('keterangan')->nullable();

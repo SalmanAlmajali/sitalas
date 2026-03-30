@@ -12,14 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->unsignedBigInteger('direktorat_id')->nullable()->index();
-            $table->string('file_ttd')->nullable();
-            $table->string('no_hp', 20)->nullable();
-            $table->string('type')->default("user");
-            $table->string('tkls')->nullable();
-            $table->boolean('sopd')->default(false);
-            $table->timestamp('last_login')->nullable();
-            $table->boolean('active')->default(true);
+            $table->unsignedBigInteger('direktorat_id')->nullable()->index()->after('remember_token');
+            $table->string('file_ttd')->nullable()->after('direktorat_id');
+            $table->string('no_hp', 20)->nullable()->after('file_ttd');
+            $table->string('tkls')->nullable()->after('no_hp');
+            $table->boolean('sopd')->default(false)->after('tkls');
+            $table->timestamp('last_login')->nullable()->after('sopd');
+            $table->boolean('active')->default(true)->after('last_login');
         });
     }
 
@@ -33,7 +32,6 @@ return new class extends Migration
                 'direktorat_id',
                 'file_ttd',
                 'no_hp',
-                'type',
                 'tkls',
                 'sopd',
                 'last_login',
