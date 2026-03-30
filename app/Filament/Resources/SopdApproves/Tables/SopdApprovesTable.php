@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\SopdApproves\Tables;
 
+use App\Models\KodeSurat;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -13,6 +14,8 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use App\Models\TambahSuratKeluar;
 use App\Models\ListBiro;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Illuminate\Support\Facades\DB;
 
 class SopdApprovesTable
@@ -31,7 +34,8 @@ class SopdApprovesTable
 
                 TextColumn::make('Kode.kode')
                     ->label('Kode Surat')
-                    ->sortable(),
+                    ->sortable()
+                    ->default('-'),
 
                 TextColumn::make('perihal')
                     ->label('Perihal')
@@ -47,12 +51,13 @@ class SopdApprovesTable
 
                 TextColumn::make('upload_file')
                     ->label('File upload')
-                    ->formatStateUsing(fn ($state) => filled($state) ? basename($state) : '-')
-                    ->url(fn ($record) => filled($record->upload_file)
-                        ? route('sopdapproves.file.show', [
-                            'sopdApprove' => $record->getKey(),
-                        ])
-                        : null
+                    ->formatStateUsing(fn($state) => filled($state) ? basename($state) : '-')
+                    ->url(
+                        fn($record) => filled($record->upload_file)
+                            ? route('sopdapproves.file.show', [
+                                'sopdApprove' => $record->getKey(),
+                            ])
+                            : null
                     )
                     ->openUrlInNewTab(),
 
@@ -90,9 +95,40 @@ class SopdApprovesTable
                     ->icon('heroicon-o-check-circle')
                     ->color('success')
                     ->requiresConfirmation()
-                    ->visible(fn ($record) => $record->tambahSuratKeluar?->status === 'pending')
-                    ->action(function ($record) {
-                        DB::transaction(function () use ($record) {
+                    ->visible(fn($record) => $record->tambahSuratKeluar?->status === 'pending')
+                    ->schema([
+                        Select::make('kode_id')
+                            ->label('Kode Surat')
+                            ->relationship('Kode', 'kode')
+                            ->getOptionLabelFromRecordUsing(
+                                fn(KodeSurat $record) =>
+                                $record->kode . ' - ' . $record->index
+                            )
+                            ->searchable()
+                            ->preload()
+                            ->required(),
+                        TextInput::make('no_surat')
+                            ->required(),
+                        Select::make('klasifikasi_id')
+                            ->label('Klasifikasi Surat')
+                            ->relationship('Klasifikasi', 'klasifikasi')
+                            ->searchable()
+                            ->preload()
+                            ->required()
+                            ->columnSpanFull(),
+                        TextInput::make('no_urut')
+                            ->required()
+                            ->default(function ($record) {
+                                $nomorBaru = TambahSuratKeluar::generateNoSurat(
+                                    $record->kode_id,
+                                    $record->tanggal_surat
+                                );
+
+                                return $nomorBaru['no_urut'];
+                            }),
+                    ])
+                    ->action(function ($record, array $data) {
+                        DB::transaction(function () use ($record, $data) {
                             $surat = TambahSuratKeluar::find($record->tambah_surat_keluar_id);
 
                             if (! $surat) {
@@ -103,14 +139,14 @@ class SopdApprovesTable
 
                                 return;
                             }
-
+                 
                             ListBiro::create([
                                 'tambah_surat_keluar_id' => $record->tambah_surat_keluar_id,
                                 'tanggal_surat' => $record->tanggal_surat,
-                                'klasifikasi_id' => $record->klasifikasi_id,
-                                'no_urut' => $record->no_urut,
-                                'kode_id' => $record->kode_id,
-                                'no_surat' => $record->no_surat,
+                                'klasifikasi_id' => $data['klasifikasi_id'],
+                                'no_urut' => $data['no_urut'],
+                                'kode_id' => $data['kode_id'],
+                                'no_surat' => $data['no_surat'],
                                 'sifat_surat_id' => $record->sifat_surat_id,
                                 'perihal' => $record->perihal,
                                 'direktorat_id' => $record->direktorat_id,
@@ -121,7 +157,13 @@ class SopdApprovesTable
                                 'lampiran' => $record->lampiran,
                             ]);
 
+
+
                             $surat->update([
+                                'klasifikasi_id' => $data['klasifikasi_id'],
+                                'no_urut' => $data['no_urut'],
+                                'kode_id' => $data['kode_id'],
+                                'no_surat' => $data['no_surat'],
                                 'status' => 'diterima',
                                 'alasan_penolakan' => null,
                             ]);
@@ -135,43 +177,43 @@ class SopdApprovesTable
                             ->send();
                     }),
 
-                        Action::make('tolak')
-                            ->label('Tolak')
-                            ->icon('heroicon-o-x-circle')
-                            ->color('danger')
-                            ->visible(fn ($record) => $record->tambahSuratKeluar?->status === 'pending')
-                            ->form([
-                                Textarea::make('alasan_penolakan')
-                                    ->label('Alasan Penolakan')
-                                    ->default('surat ini harus di perbaiki')
-                                    ->required(),
-                            ])
-                            ->action(function ($record, array $data) {
-                                DB::transaction(function () use ($record, $data) {
-                                    $surat = TambahSuratKeluar::find($record->tambah_surat_keluar_id);
+                Action::make('tolak')
+                    ->label('Tolak')
+                    ->icon('heroicon-o-x-circle')
+                    ->color('danger')
+                    ->visible(fn($record) => $record->tambahSuratKeluar?->status === 'pending')
+                    ->form([
+                        Textarea::make('alasan_penolakan')
+                            ->label('Alasan Penolakan')
+                            ->default('surat ini harus di perbaiki')
+                            ->required(),
+                    ])
+                    ->action(function ($record, array $data) {
+                        DB::transaction(function () use ($record, $data) {
+                            $surat = TambahSuratKeluar::find($record->tambah_surat_keluar_id);
 
-                                    if (! $surat) {
-                                        Notification::make()
-                                            ->title('Data surat keluar tidak ditemukan')
-                                            ->danger()
-                                            ->send();
-
-                                        return;
-                                    }
-
-                                    $surat->update([
-                                        'status' => 'ditolak',
-                                        'alasan_penolakan' => $data['alasan_penolakan'],
-                                    ]);
-
-                                    $record->delete();
-                                });
-
+                            if (! $surat) {
                                 Notification::make()
-                                    ->title('Pengajuan berhasil ditolak')
-                                    ->success()
+                                    ->title('Data surat keluar tidak ditemukan')
+                                    ->danger()
                                     ->send();
-                            }),
+
+                                return;
+                            }
+
+                            $surat->update([
+                                'status' => 'ditolak',
+                                'alasan_penolakan' => $data['alasan_penolakan'],
+                            ]);
+
+                            $record->delete();
+                        });
+
+                        Notification::make()
+                            ->title('Pengajuan berhasil ditolak')
+                            ->success()
+                            ->send();
+                    }),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
