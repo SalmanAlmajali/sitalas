@@ -10,6 +10,12 @@ use Filament\Resources\Pages\EditRecord;
 class EditSopdUser extends EditRecord
 {
     protected static string $resource = SopdUserResource::class;
+    protected function mutateFormDataBeforeCreate(array $data): array
+    {
+        $data['sopd'] = true;
+
+        return $data;
+    }
 
     protected function getHeaderActions(): array
     {
