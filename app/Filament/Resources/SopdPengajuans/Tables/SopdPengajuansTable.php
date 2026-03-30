@@ -12,6 +12,9 @@ use Filament\Tables\Columns\IconColumn;
 use Filament\Actions\Action;
 use App\Models\SopdApprove;
 use Filament\Actions\CreateAction;
+use Illuminate\Database\Eloquent\Model;
+
+use function PHPUnit\Framework\isNull;
 
 class SopdPengajuansTable
 {
@@ -28,7 +31,8 @@ class SopdPengajuansTable
                     ->sortable(),
 
                 TextColumn::make('no_surat')
-                    ->searchable(),
+                    ->searchable()
+                    ->default('-'),
 
                 TextColumn::make('perihal')
                     ->label('Perihal')
